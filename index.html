@@ -14,39 +14,95 @@
   html, body {
     width: 100%; height: 100%;
     overflow: hidden;
-    background: #1a0714;
+    background: #0d0209;
     font-family: 'DM Sans', sans-serif;
   }
 
-  /* ── MOBILE: true full-bleed ── */
+  /* ══════════════════════════════════════════
+     DESKTOP LAYOUT — two-column
+     Left: portrait photo carousel
+     Right: message card
+  ══════════════════════════════════════════ */
   .stage {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    display: flex; align-items: center; justify-content: center;
-    background: #0e030a;
+    position: fixed; inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0d0209;
     overflow: hidden;
   }
 
-  .portrait-frame {
-    position: relative;
-    width: 100%; height: 100%;
-    overflow: hidden;
-  }
-
-  /* ── DESKTOP: centred portrait card ── */
-  @media (min-width: 600px) {
-    body { background: #0e030a; }
+  /* Desktop: side-by-side */
+  @media (min-width: 700px) {
     .stage {
-      position: fixed; inset: 0;
-      align-items: center; justify-content: center;
+      gap: 32px;
+      padding: 32px;
+    }
+
+    /* Photo column */
+    .portrait-frame {
+      flex: 0 0 auto;
+      /* portrait aspect ratio: taller than wide */
+      height: min(86vh, 720px);
+      width: calc(min(86vh, 720px) * 0.56);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,.7), 0 0 0 1px rgba(235,133,183,.15);
+      position: relative;
+    }
+
+    /* Info column */
+    .desktop-card-col {
+      flex: 0 0 auto;
+      width: min(320px, 36vw);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+    }
+
+    .card-wrap {
+      position: static !important;
+      padding: 0 !important;
+      pointer-events: all !important;
+    }
+
+    .card {
+      max-width: 100% !important;
+      width: 100% !important;
+    }
+
+    /* Hide the in-frame card on desktop */
+    .card-wrap-mobile { display: none; }
+
+    /* Dot bar for desktop sits below the photo */
+    .controls-below {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 12px;
+    }
+  }
+
+  /* Mobile: full bleed single column */
+  @media (max-width: 699px) {
+    .stage {
+      flex-direction: column;
+      padding: 0;
     }
     .portrait-frame {
-      width: min(420px, 94vw);
-      height: min(748px, 96vh);
-      border-radius: 28px;
-      box-shadow: 0 32px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(235,133,183,.15);
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      border-radius: 0;
     }
+    .desktop-card-col { display: none; }
+    .card-wrap-mobile {
+      position: absolute; inset: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: center;
+      padding: 52px 18px 40px; pointer-events: none;
+    }
+    .controls-below { display: none; }
   }
 
   /* ── Carousel ── */
@@ -57,92 +113,150 @@
   }
   .carousel-slide {
     flex: 0 0 100%; width: 100%; height: 100%;
-    background-size: cover; background-position: center; background-repeat: no-repeat;
+    background-size: cover; background-position: center top;
+    background-repeat: no-repeat;
   }
   .slide-1 { background: linear-gradient(160deg,#2e0a1e 0%,#7a1f4a 45%,#c2185b 80%,#e91e8c 100%); }
   .slide-2 { background: linear-gradient(160deg,#1a0714 0%,#5c1238 40%,#9c2762 75%,#c2185b 100%); }
   .slide-3 { background: linear-gradient(160deg,#120510 0%,#4a0e30 45%,#8b1a55 80%,#d81b7a 100%); }
   .slide-pattern {
-    position: absolute; inset: 0;
+    position: absolute; inset: 0; pointer-events: none;
     background-image:
       radial-gradient(circle at 20% 30%, rgba(235,133,183,.14) 0%, transparent 50%),
       radial-gradient(circle at 80% 70%, rgba(194,24,91,.18) 0%, transparent 50%);
-    pointer-events: none;
-  }
-  .carousel-overlay {
-    position: absolute; inset: 0; z-index: 2; pointer-events: none;
-    background: linear-gradient(170deg,rgba(38,5,22,.45) 0%,rgba(72,8,40,.2) 45%,rgba(38,5,22,.5) 100%);
   }
 
-  /* ── Controls ── */
+  /* Overlay only on mobile (to darken photo so card text is readable) */
+  @media (max-width: 699px) {
+    .carousel-overlay {
+      position: absolute; inset: 0; z-index: 2; pointer-events: none;
+      background: linear-gradient(
+        to bottom,
+        rgba(10,2,8,.18) 0%,
+        rgba(10,2,8,.08) 30%,
+        rgba(10,2,8,.25) 70%,
+        rgba(10,2,8,.55) 100%
+      );
+    }
+  }
+  @media (min-width: 700px) {
+    .carousel-overlay { display: none; }
+  }
+
+  /* ── Nav arrows (inside frame) ── */
   .swipe-arrow {
     position: absolute; top: 50%; transform: translateY(-50%); z-index: 20;
-    width: 36px; height: 36px; border-radius: 50%;
-    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25);
-    color: #fff; font-size: 20px; cursor: pointer;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28);
+    color: #fff; font-size: 18px; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    opacity: .7; transition: opacity .2s, background .2s;
+    opacity: .75; transition: opacity .2s, background .2s;
     -webkit-tap-highlight-color: transparent; user-select: none;
   }
-  .swipe-arrow:hover { background: rgba(255,255,255,.22); opacity: 1; }
-  .swipe-arrow.left  { left: 12px; }
-  .swipe-arrow.right { right: 12px; }
+  .swipe-arrow:hover { background: rgba(255,255,255,.24); opacity: 1; }
+  .swipe-arrow.left  { left: 8px; }
+  .swipe-arrow.right { right: 8px; }
 
-  .dot-bar {
-    position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
-    z-index: 20; display: flex; gap: 6px; align-items: center;
+  /* ── Dot bar (inside frame on mobile, below frame on desktop) ── */
+  .dot-bar-inner {
+    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 20; display: flex; gap: 5px; align-items: center;
   }
+  @media (min-width: 700px) { .dot-bar-inner { display: none; } }
+
+  .dot-bar-outer {
+    display: flex; gap: 5px; align-items: center;
+  }
+
   .dot {
-    width: 6px; height: 6px; border-radius: 4px;
+    width: 5px; height: 5px; border-radius: 3px;
     background: rgba(255,255,255,.32); border: none; cursor: pointer;
     transition: background .3s, width .3s; padding: 0;
     -webkit-tap-highlight-color: transparent;
   }
-  .dot.active { background: rgba(255,255,255,.92); width: 18px; }
+  .dot.active { background: rgba(255,255,255,.9); width: 16px; }
 
+  /* ── Slide counter ── */
   .slide-counter {
-    position: absolute; top: 14px; right: 14px; z-index: 20;
-    background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.18);
-    color: rgba(255,255,255,.85); font-size: .7rem;
-    padding: 3px 10px; border-radius: 99px; letter-spacing: .05em;
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    position: absolute; top: 10px; right: 10px; z-index: 20;
+    background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.18);
+    color: rgba(255,255,255,.85); font-size: .66rem;
+    padding: 3px 9px; border-radius: 99px; letter-spacing: .05em;
   }
 
   /* ── Particles ── */
-  .floaters, .bubbles { position: absolute; inset: 0; pointer-events: none; z-index: 3; overflow: hidden; }
-  .floater { position: absolute; animation: floatRotate linear infinite; opacity: .12; }
+  .floaters, .bubbles {
+    position: absolute; inset: 0; pointer-events: none; z-index: 3; overflow: hidden;
+  }
+  .floater { position: absolute; animation: floatRotate linear infinite; opacity: .1; }
   @keyframes floatRotate {
     0%  { transform: rotate(0deg) translateY(0); }
-    25% { transform: rotate(90deg) translateY(-12px); }
+    25% { transform: rotate(90deg) translateY(-10px); }
     50% { transform: rotate(180deg) translateY(0); }
-    75% { transform: rotate(270deg) translateY(12px); }
+    75% { transform: rotate(270deg) translateY(10px); }
     100%{ transform: rotate(360deg) translateY(0); }
   }
   .bubble { position: absolute; border-radius: 50%; animation: floatUp linear infinite; opacity: 0; }
   @keyframes floatUp {
     0%  { transform: translateY(110%) scale(.6); opacity: 0; }
-    10% { opacity: .16; }
-    90% { opacity: .07; }
-    100%{ transform: translateY(-80px) scale(1); opacity: 0; }
+    10% { opacity: .14; }
+    90% { opacity: .06; }
+    100%{ transform: translateY(-60px) scale(1); opacity: 0; }
   }
 
-  /* ── Card ── */
-  .card-wrap {
-    position: absolute; inset: 0; z-index: 10;
-    display: flex; align-items: center; justify-content: center;
-    padding: 56px 18px 44px; pointer-events: none;
-  }
+  /* ══════════════════════════════════════════
+     CARD STYLES
+     — NO backdrop-filter (broken on Android)
+     — Uses a layered pseudo-element instead
+  ══════════════════════════════════════════ */
   .card {
-    pointer-events: all; width: 100%; max-width: 340px;
-    background: rgba(16,2,11,.32);
-    border: 1px solid rgba(235,133,183,.38); border-radius: 22px;
-    padding: 26px 22px 20px; text-align: center;
+    pointer-events: all;
+    position: relative;
+    width: 100%; max-width: 340px;
+    border-radius: 22px;
+    padding: 26px 22px 20px;
+    text-align: center;
+    overflow: hidden;          /* clips the pseudo bg */
+    border: 1px solid rgba(235,133,183,.4);
     animation: fadeIn .9s ease both;
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    /* NO backdrop-filter — use pseudo-element bg instead */
   }
+
+  /* Frosted-glass simulation without backdrop-filter */
+  .card::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    background: rgba(14, 3, 10, 0.62);
+    /* subtle inner gradient for depth */
+    background-image: linear-gradient(
+      160deg,
+      rgba(80, 8, 44, 0.45) 0%,
+      rgba(14, 3, 10, 0.68) 100%
+    );
+    z-index: 0;
+  }
+
+  /* All children sit above the pseudo bg */
+  .card > * { position: relative; z-index: 1; }
+
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(18px) scale(.97); }
+    from { opacity: 0; transform: translateY(16px) scale(.97); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* On desktop the card has no photo behind it, lighten it a bit */
+  @media (min-width: 700px) {
+    .card::before {
+      background-image: linear-gradient(
+        160deg,
+        rgba(60, 6, 34, 0.55) 0%,
+        rgba(20, 4, 14, 0.72) 100%
+      );
+    }
+    .card {
+      border-color: rgba(235,133,183,.3);
+    }
   }
 
   .icon-top {
@@ -151,7 +265,7 @@
     display: flex; align-items: center; justify-content: center;
     margin: 0 auto 10px;
     animation: pulse 3s ease-in-out infinite;
-    box-shadow: 0 4px 18px rgba(194,24,91,.4);
+    box-shadow: 0 4px 18px rgba(194,24,91,.45);
   }
   @keyframes pulse {
     0%,100%{ transform: scale(1); box-shadow: 0 4px 18px rgba(194,24,91,.4); }
@@ -161,20 +275,21 @@
 
   h1 {
     font-family: 'Playfair Display', serif;
-    font-size: clamp(1.45rem, 5.5vw, 2rem);
-    color: #fff; margin-bottom: 2px; line-height: 1.2; letter-spacing: -.01em;
+    font-size: clamp(1.45rem, 5vw, 1.85rem);
+    color: #fff; margin-bottom: 2px; line-height: 1.2;
   }
   .subtitle {
-    font-size: clamp(.58rem, 2.2vw, .68rem); color: rgba(255,255,255,.82);
+    font-size: clamp(.58rem, 2vw, .67rem); color: rgba(255,255,255,.8);
     font-weight: 500; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 10px;
   }
   .divider {
     height: 1px; margin-bottom: 10px;
-    background: linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);
+    background: linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);
   }
   .message {
-    font-size: clamp(.76rem, 2.8vw, .86rem); line-height: 1.78;
-    color: rgba(255,255,255,.93); font-weight: 300; margin-bottom: 14px; transition: opacity .4s;
+    font-size: clamp(.76rem, 2.6vw, .85rem); line-height: 1.78;
+    color: rgba(255,255,255,.92); font-weight: 300; margin-bottom: 14px;
+    transition: opacity .4s;
   }
   .message em { color: #fff; font-style: italic; font-family: 'Playfair Display', serif; }
 
@@ -185,8 +300,8 @@
     background: linear-gradient(135deg,#9c2762,#e91e8c);
     color: #fce4ec; border: none; border-radius: 50px;
     padding: 11px 26px; font-family: 'DM Sans', sans-serif;
-    font-size: clamp(.78rem, 2.8vw, .88rem); font-weight: 500;
-    cursor: pointer; min-height: 46px; letter-spacing: .02em;
+    font-size: clamp(.78rem, 2.6vw, .86rem); font-weight: 500;
+    cursor: pointer; min-height: 46px;
     transition: opacity .2s, transform .15s;
     box-shadow: 0 4px 16px rgba(194,24,91,.45);
     -webkit-tap-highlight-color: transparent; touch-action: manipulation;
@@ -195,10 +310,10 @@
 
   .outline-btn {
     display: inline-flex; align-items: center; gap: 5px;
-    background: transparent; color: rgba(255,255,255,.9);
-    border: 1px solid rgba(255,255,255,.4); border-radius: 50px;
+    background: transparent; color: rgba(255,255,255,.88);
+    border: 1px solid rgba(255,255,255,.38); border-radius: 50px;
     padding: 9px 20px; font-family: 'DM Sans', sans-serif;
-    font-size: clamp(.7rem, 2.4vw, .78rem); font-weight: 400;
+    font-size: clamp(.7rem, 2.3vw, .78rem); font-weight: 400;
     cursor: pointer; min-height: 40px;
     transition: background .2s, border-color .2s;
     -webkit-tap-highlight-color: transparent; touch-action: manipulation;
@@ -209,15 +324,42 @@
     display: flex; justify-content: center; gap: 5px; margin-top: 10px; flex-wrap: wrap;
   }
   .badge {
-    background: rgba(255,255,255,.1); color: rgba(255,255,255,.9);
-    border: .5px solid rgba(255,255,255,.28);
-    font-size: clamp(.56rem, 1.9vw, .64rem);
-    padding: 3px 9px; border-radius: 99px; letter-spacing: .02em;
+    background: rgba(255,255,255,.1); color: rgba(255,255,255,.88);
+    border: .5px solid rgba(255,255,255,.25);
+    font-size: clamp(.55rem, 1.8vw, .63rem);
+    padding: 3px 9px; border-radius: 99px;
+  }
+
+  /* Desktop extras */
+  @media (min-width: 700px) {
+    .desktop-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1rem, 2vw, 1.1rem);
+      color: rgba(255,255,255,.45);
+      font-weight: 400;
+      font-style: italic;
+      margin-bottom: 18px;
+      letter-spacing: .02em;
+    }
+    .desktop-nav {
+      display: flex; align-items: center; gap: 10px; margin-top: 16px;
+    }
+    .nav-arrow {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.22);
+      color: #fff; font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s; -webkit-tap-highlight-color: transparent;
+    }
+    .nav-arrow:hover { background: rgba(255,255,255,.2); }
+  }
+  @media (max-width: 699px) {
+    .desktop-title, .desktop-nav { display: none; }
   }
 
   /* ── Burst ── */
   .burst {
-    position: fixed; pointer-events: none; z-index: 100;
+    position: fixed; pointer-events: none; z-index: 999;
     font-size: 22px; animation: burstUp 1s ease forwards;
   }
   @keyframes burstUp {
@@ -226,41 +368,46 @@
     100%{ opacity: 0; transform: translate(-50%,-170%) scale(.9); }
   }
 
-  /* ── Very small screens (e.g. 360×640) ── */
-  @media (max-height: 650px) and (max-width: 600px) {
-    .card { padding: 18px 18px 14px; }
-    .icon-top { width: 38px; height: 38px; margin-bottom: 8px; }
-    h1 { font-size: 1.3rem; }
-    .subtitle { margin-bottom: 7px; }
-    .divider { margin-bottom: 7px; }
-    .message { margin-bottom: 10px; line-height: 1.65; }
-    .badges { margin-top: 8px; }
+  /* Very small screens */
+  @media (max-height: 620px) and (max-width: 699px) {
+    .card { padding: 16px 16px 12px; }
+    .icon-top { width: 38px; height: 38px; margin-bottom: 7px; }
+    h1 { font-size: 1.25rem; }
+    .subtitle, .divider { margin-bottom: 7px; }
+    .message { margin-bottom: 9px; line-height: 1.6; }
+    .badges { margin-top: 7px; }
   }
 </style>
 </head>
 <body>
 
 <div class="stage" id="stage">
+
+  <!-- ═══ PHOTO CAROUSEL ═══ -->
   <div class="portrait-frame" id="frame">
     <div class="carousel-track" id="carouselTrack"></div>
     <div class="carousel-overlay"></div>
     <div class="bubbles"  id="bubbles"></div>
     <div class="floaters" id="floaters"></div>
 
-    <button class="swipe-arrow left"  id="prevBtn" aria-label="Previous">&#8249;</button>
-    <button class="swipe-arrow right" id="nextBtn"  aria-label="Next">&#8250;</button>
+    <!-- In-frame arrows (both layouts) -->
+    <button class="swipe-arrow left"  id="prevBtn"  aria-label="Previous">&#8249;</button>
+    <button class="swipe-arrow right" id="nextBtn"   aria-label="Next">&#8250;</button>
     <div class="slide-counter" id="slideCounter">1 / 3</div>
-    <div class="dot-bar" id="dotBar"></div>
 
-    <div class="card-wrap">
-      <div class="card">
+    <!-- Dot bar inside frame (mobile only) -->
+    <div class="dot-bar-inner" id="dotBarInner"></div>
+
+    <!-- Card overlay on mobile -->
+    <div class="card-wrap-mobile">
+      <div class="card" id="cardMobile">
         <div class="icon-top" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
         </div>
         <h1>Get Well Soon Bae!</h1>
         <p class="subtitle">a little cheer, just for you</p>
         <div class="divider"></div>
-        <p class="message" id="mainMsg">
+        <p class="message" id="mainMsgMobile">
           Think of this as the universe giving you<br>
           a gentle pause — so you can come back<br>
           <em>stronger than ever.</em><br><br>
@@ -268,7 +415,7 @@
         </p>
         <div class="btn-group">
           <button class="hug-btn"     onclick="sendHug(event)">💌 Send a Digital Hug</button>
-          <button class="outline-btn" onclick="showMsg()">✨ Click meeee</button>
+          <button class="outline-btn" onclick="showMsg('mainMsgMobile')">✨ Click meeee</button>
         </div>
         <div class="badges">
           <span class="badge">Feel better soon</span>
@@ -278,51 +425,81 @@
       </div>
     </div>
   </div>
+
+  <!-- ═══ DESKTOP RIGHT COLUMN ═══ -->
+  <div class="desktop-card-col">
+    <p class="desktop-title">for you, with love 💗</p>
+
+    <div class="card-wrap">
+      <div class="card" id="cardDesktop">
+        <div class="icon-top" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </div>
+        <h1>Get Well Soon Bae!</h1>
+        <p class="subtitle">a little cheer, just for you</p>
+        <div class="divider"></div>
+        <p class="message" id="mainMsgDesktop">
+          Think of this as the universe giving you
+          a gentle pause — so you can come back
+          <em>stronger than ever.</em><br><br>
+          Sending you warm digital hugs! 💗
+        </p>
+        <div class="btn-group">
+          <button class="hug-btn"     onclick="sendHug(event)">💌 Send a Digital Hug</button>
+          <button class="outline-btn" onclick="showMsg('mainMsgDesktop')">✨ Click meeee</button>
+        </div>
+        <div class="badges">
+          <span class="badge">Feel better soon</span>
+          <span class="badge">I love you always</span>
+          <span class="badge">Call me Btw</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desktop nav below card -->
+    <div class="desktop-nav">
+      <button class="nav-arrow" id="prevBtn2" aria-label="Previous">&#8249;</button>
+      <div class="dot-bar-outer" id="dotBarOuter"></div>
+      <button class="nav-arrow" id="nextBtn2" aria-label="Next">&#8250;</button>
+    </div>
+  </div>
+
 </div>
 
 <script>
-// ════════════════════════════════════════════════════════════
-// VIEWPORT FIX — defeats Chrome Android address-bar gap
-// Strategy: use window.innerHeight in pixels, not vh units.
-// ════════════════════════════════════════════════════════════
-const stage = document.getElementById('stage');
-const frame = document.getElementById('frame');
-const MOBILE_BP = 600;
-
-function isMobile() { return window.innerWidth < MOBILE_BP; }
+// ════════════════════════════════════════════════════════
+// VIEWPORT FIX — pixel-exact height for Chrome Android
+// ════════════════════════════════════════════════════════
+const stageEl = document.getElementById('stage');
+const frameEl = document.getElementById('frame');
 
 function resize() {
-  if (!isMobile()) {
-    // Desktop: let CSS handle it, remove inline styles
-    stage.style.cssText = '';
-    frame.style.cssText = '';
+  if (window.innerWidth >= 700) {
+    // Desktop: clear any inline overrides, let CSS rule
+    stageEl.style.cssText = '';
+    frameEl.style.cssText = '';
+    document.documentElement.style.cssText = '';
+    document.body.style.cssText = '';
     return;
   }
-  // Mobile: override everything with actual pixel values
+  // Mobile: force exact pixel dimensions
   const W = window.innerWidth;
   const H = window.innerHeight;
-  // Force html/body to exact size
   document.documentElement.style.cssText = `width:${W}px;height:${H}px;overflow:hidden`;
   document.body.style.cssText           = `width:${W}px;height:${H}px;overflow:hidden`;
-  stage.style.cssText = `position:fixed;top:0;left:0;width:${W}px;height:${H}px;overflow:hidden`;
-  frame.style.cssText = `width:${W}px;height:${H}px`;
+  stageEl.style.cssText = `position:fixed;top:0;left:0;width:${W}px;height:${H}px;overflow:hidden`;
+  frameEl.style.cssText = `width:${W}px;height:${H}px`;
 }
 
 resize();
-
 let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(resize, 150);
-});
+window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 150); });
 window.addEventListener('orientationchange', () => setTimeout(resize, 400));
+window.addEventListener('load', () => setTimeout(resize, 80));
 
-// Also fire after fonts/images load (sometimes changes layout)
-window.addEventListener('load', () => setTimeout(resize, 100));
-
-// ════════════════════════════════════════════════════════════
-// IMAGE CONFIG — put your filenames here
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+// IMAGE LIST
+// ════════════════════════════════════════════════════════
 const BG_IMAGES = [
   "WhatsApp Image 2026-05-16 at 00.46.47.jpeg",
   "WhatsApp Image 2026-05-16 at 00.46.48 (1).jpeg",
@@ -337,12 +514,14 @@ const BG_IMAGES = [
   "WhatsApp Image 2026-05-16 at 00.48.05.jpeg"
 ];
 
-// ════════════════════════════════════════════════════════════
-// CAROUSEL SETUP
-// ════════════════════════════════════════════════════════════
-const track   = document.getElementById('carouselTrack');
-const dotBar  = document.getElementById('dotBar');
-const counter = document.getElementById('slideCounter');
+// ════════════════════════════════════════════════════════
+// CAROUSEL
+// ════════════════════════════════════════════════════════
+const track    = document.getElementById('carouselTrack');
+const dotInner = document.getElementById('dotBarInner');
+const dotOuter = document.getElementById('dotBarOuter');
+const counter  = document.getElementById('slideCounter');
+
 const DEFAULTS = ['slide-1','slide-2','slide-3'];
 const sources  = BG_IMAGES.length ? BG_IMAGES : DEFAULTS;
 
@@ -355,9 +534,8 @@ sources.forEach(src => {
     pat.className = 'slide-pattern';
     div.appendChild(pat);
   } else {
-    // encode each path segment to handle spaces & parentheses
-    const encoded = src.split('/').map(encodeURIComponent).join('/');
-    div.style.backgroundImage = `url('${encoded}')`;
+    const enc = src.split('/').map(encodeURIComponent).join('/');
+    div.style.backgroundImage = `url('${enc}')`;
   }
   track.appendChild(div);
 });
@@ -366,15 +544,17 @@ const total = sources.length;
 let current = 0, autoTimer = null;
 
 function buildDots() {
-  dotBar.innerHTML = '';
-  for (let i = 0; i < total; i++) {
-    const b = document.createElement('button');
-    b.className = 'dot' + (i === current ? ' active' : '');
-    b.setAttribute('aria-label', 'Slide '+(i+1));
-    const idx = i;
-    b.onclick = () => { goTo(idx); resetAuto(); };
-    dotBar.appendChild(b);
-  }
+  [dotInner, dotOuter].forEach(bar => {
+    bar.innerHTML = '';
+    for (let i = 0; i < total; i++) {
+      const b = document.createElement('button');
+      b.className = 'dot' + (i === current ? ' active' : '');
+      b.setAttribute('aria-label', 'Slide '+(i+1));
+      const idx = i;
+      b.onclick = () => { goTo(idx); resetAuto(); };
+      bar.appendChild(b);
+    }
+  });
 }
 
 function updateUI() {
@@ -383,54 +563,57 @@ function updateUI() {
   buildDots();
 }
 
-function goTo(idx) {
-  current = ((idx % total) + total) % total;
-  updateUI();
-}
-
+function goTo(idx) { current = ((idx % total) + total) % total; updateUI(); }
 function resetAuto() {
   clearInterval(autoTimer);
   if (total > 1) autoTimer = setInterval(() => goTo(current+1), 5000);
 }
 
-document.getElementById('prevBtn').onclick = () => { goTo(current-1); resetAuto(); };
-document.getElementById('nextBtn').onclick = () => { goTo(current+1); resetAuto(); };
+['prevBtn','prevBtn2'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.onclick = () => { goTo(current-1); resetAuto(); };
+});
+['nextBtn','nextBtn2'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.onclick = () => { goTo(current+1); resetAuto(); };
+});
+
 updateUI(); resetAuto();
 
-// ─── Touch swipe ─────────────────────────────────────────
+// ── Touch swipe ──────────────────────────────────────────
 let tx=0, ty=0, drag=false;
 track.addEventListener('touchstart', e => { tx=e.touches[0].clientX; ty=e.touches[0].clientY; drag=true; }, {passive:true});
-track.addEventListener('touchmove',  e => {
+track.addEventListener('touchmove', e => {
   if (!drag) return;
-  const dx = e.touches[0].clientX - tx;
-  const dy = e.touches[0].clientY - ty;
+  const dx=e.touches[0].clientX-tx, dy=e.touches[0].clientY-ty;
   if (Math.abs(dx) > Math.abs(dy)) {
-    const pct = -(current*100) + (dx/frame.offsetWidth)*100;
-    track.style.transition = 'none';
-    track.style.transform  = `translateX(${pct}%)`;
+    track.style.transition='none';
+    track.style.transform=`translateX(${-(current*100)+(dx/frameEl.offsetWidth)*100}%)`;
   }
 }, {passive:true});
 track.addEventListener('touchend', e => {
   if (!drag) return; drag=false; track.style.transition='';
-  const dx = e.changedTouches[0].clientX - tx;
-  if (Math.abs(dx) > 40) { dx<0 ? goTo(current+1) : goTo(current-1); resetAuto(); } else updateUI();
-});
-
-// ─── Mouse drag ──────────────────────────────────────────
-let mx=0, mDrag=false;
-track.addEventListener('mousedown', e => { mx=e.clientX; mDrag=true; track.style.cursor='grabbing'; });
-window.addEventListener('mousemove', e => {
-  if (!mDrag) return;
-  const pct = -(current*100) + ((e.clientX-mx)/frame.offsetWidth)*100;
-  track.style.transition='none'; track.style.transform=`translateX(${pct}%)`;
-});
-window.addEventListener('mouseup', e => {
-  if (!mDrag) return; mDrag=false; track.style.cursor=''; track.style.transition='';
-  const dx = e.clientX-mx;
+  const dx=e.changedTouches[0].clientX-tx;
   if (Math.abs(dx)>40) { dx<0?goTo(current+1):goTo(current-1); resetAuto(); } else updateUI();
 });
 
-// ─── Messages ────────────────────────────────────────────
+// ── Mouse drag ───────────────────────────────────────────
+let mx=0, mDrag=false;
+track.addEventListener('mousedown', e=>{mx=e.clientX;mDrag=true;track.style.cursor='grabbing';});
+window.addEventListener('mousemove', e=>{
+  if(!mDrag) return;
+  track.style.transition='none';
+  track.style.transform=`translateX(${-(current*100)+((e.clientX-mx)/frameEl.offsetWidth)*100}%)`;
+});
+window.addEventListener('mouseup', e=>{
+  if(!mDrag) return; mDrag=false; track.style.cursor=''; track.style.transition='';
+  const dx=e.clientX-mx;
+  if(Math.abs(dx)>40){dx<0?goTo(current+1):goTo(current-1);resetAuto();}else updateUI();
+});
+
+// ════════════════════════════════════════════════════════
+// MESSAGES
+// ════════════════════════════════════════════════════════
 const msgs = [
   "Your body is working hard — give it time. 💗",
   "Every day is a small step toward recovery. ✨",
@@ -440,15 +623,21 @@ const msgs = [
   "Healing takes courage. You have plenty of it. 🌟",
   "Today's rest is tomorrow's strength. 💖"
 ];
-let msgIdx=0;
-function showMsg(){
-  const p=document.getElementById('mainMsg');
-  p.style.opacity=0;
-  setTimeout(()=>{ p.innerHTML=msgs[msgIdx%msgs.length]; p.style.transition='opacity .4s'; p.style.opacity=1; msgIdx++; },300);
+let msgIdx = 0;
+function showMsg(targetId) {
+  const p = document.getElementById(targetId);
+  if (!p) return;
+  p.style.opacity = 0;
+  setTimeout(() => {
+    p.innerHTML = msgs[msgIdx % msgs.length];
+    p.style.transition = 'opacity .4s'; p.style.opacity = 1; msgIdx++;
+  }, 300);
 }
 
-// ─── Hug burst ───────────────────────────────────────────
-function sendHug(e){
+// ════════════════════════════════════════════════════════
+// HUG BURST
+// ════════════════════════════════════════════════════════
+function sendHug(e) {
   const icons=['💗','🤗','💌','✨','🌸','💖','🌷','💕'];
   for(let i=0;i<8;i++) setTimeout(()=>{
     const d=document.createElement('div'); d.className='burst';
@@ -456,27 +645,30 @@ function sendHug(e){
     d.style.left=(e.clientX+(Math.random()-.5)*100)+'px';
     d.style.top =(e.clientY+(Math.random()-.5)*45)+'px';
     document.body.appendChild(d); setTimeout(()=>d.remove(),1100);
-  },i*85);
+  }, i*85);
 }
 
-// ─── Bubbles & floaters ──────────────────────────────────
+// ════════════════════════════════════════════════════════
+// PARTICLES
+// ════════════════════════════════════════════════════════
 const bColors=['#f48fb1','#e91e8c','#fce4ec','#f8bbd0','#c2185b'];
 const bc=document.getElementById('bubbles');
-for(let i=0;i<12;i++){
+for(let i=0;i<10;i++){
   const b=document.createElement('div'); b.className='bubble';
-  const sz=14+Math.random()*44;
-  Object.assign(b.style,{ width:sz+'px',height:sz+'px',background:bColors[i%bColors.length],
-    left:(Math.random()*100)+'%', animationDuration:(12+Math.random()*13)+'s', animationDelay:-(Math.random()*14)+'s' });
+  const sz=12+Math.random()*36;
+  Object.assign(b.style,{width:sz+'px',height:sz+'px',background:bColors[i%bColors.length],
+    left:(Math.random()*100)+'%',animationDuration:(13+Math.random()*12)+'s',
+    animationDelay:-(Math.random()*14)+'s'});
   bc.appendChild(b);
 }
 const flowers=['🌸','🌺','🌷','💗','💕','🌸','💖'];
 const fl=document.getElementById('floaters');
-for(let i=0;i<10;i++){
+for(let i=0;i<8;i++){
   const f=document.createElement('div'); f.className='floater';
   f.textContent=flowers[i%flowers.length];
-  Object.assign(f.style,{ left:(Math.random()*100)+'%', top:(Math.random()*100)+'%',
-    fontSize:(18+Math.random()*20)+'px', animationDuration:(9+Math.random()*12)+'s',
-    animationDelay:-(Math.random()*10)+'s', opacity:(.07+Math.random()*.12).toFixed(2) });
+  Object.assign(f.style,{left:(Math.random()*100)+'%',top:(Math.random()*100)+'%',
+    fontSize:(16+Math.random()*18)+'px',animationDuration:(10+Math.random()*11)+'s',
+    animationDelay:-(Math.random()*10)+'s',opacity:(.06+Math.random()*.1).toFixed(2)});
   fl.appendChild(f);
 }
 </script>
